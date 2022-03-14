@@ -4,15 +4,14 @@ const publicRuntimeConfig = {
   COGNITO_CLIENT_ID: '17uprj6843uiev15qqdkn3l5h7',
   COGNITO_IDENTITY_POOL_ID:
     'ap-southeast-2:6b7b7db4-96fd-450f-88fc-2a6feb55cb8e',
-  BASE_URL: 'https://api.wappalyzer.com/',
   ...(process.env.NODE_ENV === 'development' ||
   process.env.ENVIRONMENT === 'beta'
     ? {
-        API_VERSION: 'beta',
+        BASE_URL: 'https://api.wappalyzer.com/beta/',
         WEBSITE_URL: 'https://www.wappalyzer.com',
       }
     : {
-        API_VERSION: 'v2',
+        BASE_URL: 'https://api.wappalyzer.com/v2/',
         WEBSITE_URL: 'https://www.wappalyzer.com',
       }),
 }

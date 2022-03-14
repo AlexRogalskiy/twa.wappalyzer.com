@@ -1,20 +1,13 @@
 <template>
   <v-sheet
-    v-if="!isPro"
+    v-if="!isPlus"
     :class="`${small ? 'py-4' : 'py-6'} text-center`"
     color="primary lighten-1"
     outlined
   >
-    <v-btn
-      :href="`${websiteUrl}/pro/`"
-      color="primary"
-      target="_blank"
-      depressed
-      :small="small"
-    >
-      <v-icon left>{{ mdiLockOpenVariantOutline }}</v-icon>
-      Unlock pro features</v-btn
-    >
+    <v-btn to="/plus/" color="primary" depressed :small="small">
+      Get plus for $5/mo
+    </v-btn>
   </v-sheet>
 </template>
 
@@ -30,11 +23,11 @@ export default {
     },
   },
   data() {
-    return { mdiLockOpenVariantOutline, websiteUrl: this.$config.WEBSITE_URL }
+    return { mdiLockOpenVariantOutline }
   },
   computed: {
     ...mapState({
-      isPro: ({ credits }) => credits.pro,
+      isPlus: ({ credits }) => credits.plus,
     }),
   },
 }

@@ -82,10 +82,15 @@
       />
 
       <v-expansion-panel v-if="keywords && keywords.length" flat>
-        <v-expansion-panel-header class="subtitle-2" style="line-height: 1em">
+        <v-expansion-panel-header
+          class="subtitle-2 px-4"
+          style="line-height: 1em"
+        >
           Keywords
         </v-expansion-panel-header>
-        <v-expansion-panel-content eager>
+        <v-expansion-panel-content class="nopadding px-4" eager>
+          <v-divider />
+
           <v-chip-group column>
             <v-chip
               v-for="keyword in keywords"
@@ -101,6 +106,23 @@
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-expansion-panels>
+
+    <v-card v-if="isSignedIn && !isLoading && !credits" tile>
+      <v-card-title class="subtitle-2">No credits remaining</v-card-title>
+      <v-card-text class="pb-0">
+        Please top-up your credit balance.
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn
+          :href="`${websiteUrl}/credits/`"
+          color="accent"
+          target="_blank"
+          text
+          >Buy credits</v-btn
+        >
+      </v-card-actions>
+    </v-card>
 
     <v-card
       v-if="!loading && !error && technologies.length"
@@ -137,23 +159,6 @@
           </v-simple-table>
         </v-card-text>
       </div>
-    </v-card>
-
-    <v-card v-if="isSignedIn && !isLoading && !credits" tile>
-      <v-card-title class="subtitle-2">No credits remaining</v-card-title>
-      <v-card-text class="pb-0">
-        Please top-up your credit balance.
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer />
-        <v-btn
-          :href="`${websiteUrl}/credits/`"
-          color="accent"
-          target="_blank"
-          text
-          >Buy credits</v-btn
-        >
-      </v-card-actions>
     </v-card>
 
     <v-dialog

@@ -1,88 +1,108 @@
 <template>
   <div style="width: 100%">
     <v-expansion-panel v-for="(set, setKey) in attributes" :key="setKey" flat>
-      <v-expansion-panel-header class="subtitle-2" style="line-height: 1em"
-        >{{ set.title }}
+      <v-expansion-panel-header
+        class="subtitle-2 px-4"
+        style="line-height: 1em"
+      >
+        {{ set.title }}
 
-        <span class="body-2 my-n2">
+        <v-spacer />
+
+        <span class="body-2 my-n2 mr-4 flex-grow-0">
           <v-chip
-            v-if="['contact', 'company', 'social'].includes(setKey)"
+            v-if="['contact', 'company', 'social', 'signals'].includes(setKey)"
+            to="/plus/"
             color="primary"
             class="ml-2"
             x-small
             outlined
-          >
-            PRO</v-chip
+            >PLUS</v-chip
           >
         </span>
       </v-expansion-panel-header>
-      <v-expansion-panel-content class="nopadding" eager>
-        <Pro v-if="maskedSets.includes(setKey)" class="mb-4" />
 
-        <v-simple-table>
-          <tbody>
-            <tr
-              v-for="(attribute, attributeKey) in set.attributes"
-              :key="attributeKey"
+      <v-expansion-panel-content class="nopadding" eager>
+        <v-divider />
+
+        <Plus v-if="maskedSets.includes(setKey)" small />
+
+        <div
+          v-for="(attribute, attributeKey) in set.attributes"
+          :key="attributeKey"
+        >
+          <v-card-title class="subtitle-2 pb-2">
+            {{ attribute.title }}
+          </v-card-title>
+
+          <v-card-text class="pb-0">
+            <v-simple-table
+              v-if="
+                ['email', 'verifiedEmail', 'safeEmail', 'phone'].includes(
+                  attributeKey
+                ) || setKey === 'social'
+              "
+              class="mx-n4"
+              style="max-width: none"
             >
-              <th class="pl-6" width="30%">
-                {{ attribute.title }}
-              </th>
-              <td class="px-6">
-                <v-chip-group
-                  v-if="
-                    ['email', 'phone'].includes(attributeKey) ||
-                    setKey === 'social'
-                  "
-                  column
-                >
-                  <div v-for="(value, index) in attribute.values" :key="index">
-                    <v-chip
-                      v-if="attributeKey === 'email'"
+              <tbody>
+                <tr v-for="(value, index) in attribute.values" :key="index">
+                  <td
+                    v-if="
+                      ['email', 'verifiedEmail', 'safeEmail'].includes(
+                        attributeKey
+                      )
+                    "
+                    class="py-2"
+                  >
+                    <nuxt-link :to="`/verify/${parseEmail(value.text).email}`">
+                      <v-icon color="accent" class="mr-1" size="22">{{
+                        mdiEmail
+                      }}</v-icon
+                      ><span
+                        :class="maskedSets.includes(setKey) ? 'blurred' : ''"
+                        >{{ parseEmail(value.text).email }}</span
+                      >
+                    </nuxt-link>
+
+                    <div
+                      v-if="parseEmail(value.text).name"
+                      :class="maskedSets.includes(setKey) ? 'blurred' : ''"
+                    >
+                      {{ parseEmail(value.text).name }}
+                      <span
+                        v-if="parseEmail(value.text).title"
+                        class="text--disabled"
+                      >
+                        &mdash;
+                        {{ parseEmail(value.text).title }}
+                      </span>
+                    </div>
+                  </td>
+                  <td v-else-if="attributeKey === 'phone'">
+                    <nuxt-link
                       :href="
                         maskedSets.includes(setKey)
-                          ? ''
-                          : `mailto:${value.text}`
+                          ? undefined
+                          : `tel:${value.text}`
                       "
-                      color="accent--text"
-                      outlined
-                      label
+                      :to="maskedSets.includes(setKey) ? '/plus/' : ''"
                     >
-                      <v-icon small left>
-                        {{ mdiEmail }}
-                      </v-icon>
-                      <span
+                      <v-icon color="accent" class="mr-1" size="22">{{
+                        mdiPhone
+                      }}</v-icon
+                      ><span
                         :class="maskedSets.includes(setKey) ? 'blurred' : ''"
+                        >{{ value.text }}</span
                       >
-                        {{ value.text }}
-                      </span>
-                    </v-chip>
-                    <v-chip
-                      v-else-if="attributeKey === 'phone'"
-                      :href="
-                        maskedSets.includes(setKey) ? '' : `tel:${value.text}`
-                      "
-                      color="accent--text"
-                      outlined
-                      label
-                    >
-                      <v-icon small left>
-                        {{ mdiPhone }}
-                      </v-icon>
-                      <span
-                        :class="maskedSets.includes(setKey) ? 'blurred' : ''"
-                      >
-                        {{ value.text }}
-                      </span>
-                    </v-chip>
-                    <v-chip
-                      v-else-if="value.to"
-                      :href="maskedSets.includes(setKey) ? '' : value.to"
+                    </nuxt-link>
+                  </td>
+                  <td v-else-if="value.to">
+                    <nuxt-link
+                      :href="maskedSets.includes(setKey) ? undefined : value.to"
+                      :to="maskedSets.includes(setKey) ? '/plus/' : ''"
                       rel="nofollow noopener"
                       target="_blank"
-                      color="accent--text"
-                      outlined
-                      label
                     >
                       <v-icon
                         v-if="
@@ -96,71 +116,89 @@
                             'pinterest',
                           ].includes(attributeKey)
                         "
-                        small
-                        left
+                        color="accent"
+                        class="mr-1"
+                        size="22"
                       >
-                        {{ mdi[attributeKey] }}
-                      </v-icon>
-                      <span
+                        {{ mdi[attributeKey] }} </v-icon
+                      ><span
                         :class="maskedSets.includes(setKey) ? 'blurred' : ''"
+                        >{{ value.text }}</span
                       >
-                        {{ value.text }}
-                      </span></v-chip
-                    >
-                  </div>
-                </v-chip-group>
-                <template v-else>
-                  <div v-for="(value, index) in attribute.values" :key="index">
-                    <v-icon v-if="value.text === true" color="success" small>{{
-                      mdiCheck
-                    }}</v-icon>
-                    <v-icon
-                      v-else-if="value.text === false"
-                      color="error"
-                      small
-                      >{{ mdiClose }}</v-icon
-                    >
-                    <div
-                      v-else-if="attributeKey === 'employees'"
-                      :class="`${
-                        maskedSets.includes(setKey) ? 'blurred ' : ''
-                      }my-2`"
-                    >
-                      <v-divider v-if="index" class="my-2" />
+                    </nuxt-link>
+                  </td>
+                </tr>
+              </tbody>
+            </v-simple-table>
+            <template v-else>
+              <div v-for="(value, index) in attribute.values" :key="index">
+                <v-icon v-if="value.text === true" color="success">
+                  {{ mdiCheck }}
+                </v-icon>
+                <v-icon v-else-if="value.text === false" color="error">
+                  {{ mdiClose }}
+                </v-icon>
+                <div
+                  v-else-if="attributeKey === 'employees'"
+                  :class="`mx-n4 ${
+                    maskedSets.includes(setKey) ? 'blurred ' : ''
+                  }`"
+                >
+                  <v-divider v-if="index" class="my-2" />
 
-                      <span class="font-weight-medium">{{
-                        value.text.split(' -- ').shift()
-                      }}</span
-                      ><br />
-                      <small
-                        v-if="value.text.split(' -- ').pop().length >= 3"
-                        >{{ value.text.split(' -- ').pop() }}</small
-                      >
-                    </div>
-                    <div
-                      v-else-if="attributeKey === 'companyName'"
-                      :class="`${
-                        maskedSets.includes(setKey) ? 'blurred ' : ''
-                      }my-2`"
+                  <div class="px-4">
+                    <span>{{ value.text.split(' -- ').shift() }}</span>
+                    <span
+                      v-if="value.text.split(' -- ').pop().length >= 3"
+                      class="text--disabled"
+                      >&mdash; {{ value.text.split(' -- ').pop() }}</span
                     >
-                      <strong>{{ value.text }}</strong>
-                    </div>
-                    <div
-                      v-else
-                      :class="`${
-                        maskedSets.includes(setKey) && setKey === 'company'
-                          ? 'blurred '
-                          : ''
-                      }my-2`"
-                    >
-                      {{ value.text }}
-                    </div>
                   </div>
-                </template>
-              </td>
-            </tr>
-          </tbody>
-        </v-simple-table>
+                </div>
+                <span
+                  v-else-if="attributeKey === 'certInfo.validTo'"
+                  :class="`${maskedSets.includes(setKey) ? 'blurred ' : ''}`"
+                >
+                  {{ formatDate(new Date(value.text * 1000)) }}
+                </span>
+                <span
+                  v-else-if="attributeKey === 'locations'"
+                  :class="`${maskedSets.includes(setKey) ? 'blurred ' : ''}`"
+                >
+                  <a
+                    :href="`https://maps.google.com/?q=${encodeURIComponent(
+                      value.text
+                    )}`"
+                    target="_blank"
+                  >
+                    {{ value.text }}
+                  </a>
+                </span>
+                <span
+                  v-else
+                  :class="`${
+                    maskedSets.includes(setKey) && setKey === 'company'
+                      ? 'blurred '
+                      : ''
+                  }`"
+                >
+                  {{
+                    !expanded[attributeKey] && value.text.length > 250
+                      ? `${value.text.slice(0, 250)}...`
+                      : value.text
+                  }}
+
+                  <a
+                    v-if="value.text.length > 250"
+                    href="#"
+                    @click.prevent="toggle(attributeKey)"
+                    >Show {{ expanded[attributeKey] ? 'less' : 'more' }}</a
+                  >
+                </span>
+              </div>
+            </template>
+          </v-card-text>
+        </div>
       </v-expansion-panel-content>
     </v-expansion-panel>
   </div>
@@ -181,11 +219,11 @@ import {
   mdiPinterest,
 } from '@mdi/js'
 
-import Pro from '~/components/Pro.vue'
+import Plus from '~/components/Plus.vue'
 
 export default {
   components: {
-    Pro,
+    Plus,
   },
   props: {
     hostname: {
@@ -216,14 +254,66 @@ export default {
         github: mdiGithub,
         pinterest: mdiPinterest,
       },
+      expanded: {},
     }
   },
   computed: {
     attributes() {
-      return this.transformAttributes(
-        ['contact', 'company', 'social', 'meta', 'locale'],
-        this.hostname
+      const hostname = Object.keys(this.hostname).reduce(
+        (hostname, key) => ({
+          ...hostname,
+          ...([
+            'verifiedEmail',
+            'safeEmail',
+            'copyrightYear',
+            'responsive',
+            'schemaOrgTypes',
+          ].includes(key)
+            ? {}
+            : {
+                [key]: this.hostname[key],
+              }),
+        }),
+        {}
       )
+
+      return this.transformAttributes(
+        [
+          'contact',
+          'company',
+          'social',
+          'signals',
+          'meta',
+          'locale',
+          'trackers',
+          'security',
+        ],
+        hostname
+      )
+    },
+  },
+  methods: {
+    toggle(attributeKey) {
+      if (this.expanded[attributeKey]) {
+        delete this.expanded[attributeKey]
+
+        this.expanded = { ...this.expanded }
+      } else {
+        this.expanded = {
+          ...this.expanded,
+          [attributeKey]: true,
+        }
+      }
+    },
+    parseEmail(fullEmail) {
+      const email = fullEmail.replace(/^[^<]*<([^>]+)>/, '$1')
+
+      const [name, title] =
+        email === fullEmail
+          ? ['', '']
+          : fullEmail.replace(/ <([^>]+)>$/, '').split(' -- ')
+
+      return { email, name, title }
     },
   },
 }
@@ -238,5 +328,6 @@ export default {
 
 .blurred {
   filter: blur(3px);
+  opacity: 0.5;
 }
 </style>
